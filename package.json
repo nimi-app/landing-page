@@ -1,0 +1,36 @@
+{
+  "name": "nimi-landing-page",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "codegen:contracts": "typechain --target ethers-v5 --out-dir generated/contracts './abis/*.json'"
+  },
+  "dependencies": {
+    "@ensdomains/ensjs": "^3.0.0-alpha.1",
+    "@ensdomains/eth-ens-namehash": "^2.0.15",
+    "axios": "^0.27.2",
+    "ethers": "^5.6.9",
+    "multiformats": "^9.7.0",
+    "next": "12.1.6",
+    "nimi-card": "^0.5.0-beta.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "styled-components": "^5.3.5"
+  },
+  "devDependencies": {
+    "@svgr/webpack": "^6.2.1",
+    "@typechain/ethers-v5": "^10.1.0",
+    "@types/node": "18.0.0",
+    "@types/react": "18.0.14",
+    "@types/react-dom": "18.0.5",
+    "@types/styled-components": "^5.1.25",
+    "eslint": "8.18.0",
+    "eslint-config-next": "12.1.6",
+    "typechain": "^8.1.0",
+    "typescript": "4.7.4"
+  }
+}
