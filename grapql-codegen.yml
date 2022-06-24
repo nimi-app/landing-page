@@ -1,8 +1,0 @@
-generates:
-  ./src/generated/graphql/ens.ts:
-    schema: "https://api.thegraph.com/subgraphs/name/ensdomains/ens"
-    documents: 'src/graphql/ens/queries.ts'
-    plugins:
-      - typescript
-      - typescript-operations
-      - typescript-react-apollo
