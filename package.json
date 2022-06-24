@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "codegen:contracts": "typechain --target ethers-v5 --out-dir generated/contracts './abis/*.json'"
+    "codegen:contracts": "typechain --target ethers-v5 --out-dir generated/contracts './abis/*.json'",
+    "dockerize": "sh ./docker/build.sh"
   },
   "dependencies": {
     "@ensdomains/ensjs": "^3.0.0-alpha.1",
