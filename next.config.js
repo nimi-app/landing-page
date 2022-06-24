@@ -12,6 +12,9 @@ const nextConfig = {
   env: {
     PORT: process.env.PORT || 3000,
   },
+  experimental: {
+    outputStandalone: true,
+  },
 }
 
 module.exports = nextConfig
