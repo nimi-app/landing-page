@@ -9,6 +9,7 @@ import {
   NimiCard,
   NimiLink,
   NimiLinkBaseDetails,
+  NimiWidgetType,
 } from 'nimi-card'
 import { MetaTags } from '../components/MetaTags/MetaTags'
 import { getENSNameMetadata } from '../lib/ens/ensNameMetadata'
@@ -106,6 +107,12 @@ export async function getServerSideProps({
     ],
     ensAddress,
     links,
+    widgets: [
+      {
+        type: NimiWidgetType.POAP,
+        address: ensAddress,
+      },
+    ],
   }
 
   if (ensMetadata) {
