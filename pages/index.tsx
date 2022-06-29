@@ -15,6 +15,8 @@ import { MetaTags } from '../components/MetaTags/MetaTags'
 import { getENSNameMetadata } from '../lib/ens/ensNameMetadata'
 import { getENSProfile } from '../lib/ens/ensProfile'
 
+import metaTagsImageUrl from '../assets/images/page-cover.png'
+
 const supportedKeys = [
   'com.twitter',
   'com.github',
@@ -47,7 +49,7 @@ function Home({
         <MetaTags
           title={title}
           description='Created using Nimi'
-          imageUrl='./page-cover.png'
+          imageUrl={metaTagsImageUrl.src}
           url={`https://${nimi.ensName}.limo/`}
         />
       </Head>
