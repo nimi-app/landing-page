@@ -39,17 +39,18 @@ export function MetaTags({
   tags.push(
     <meta
       key='twitter:card'
-      property='twitter:card'
+      name='twitter:card'
       content='summary_large_image'
     />,
-    <meta key='twitter:url' property='twitter:url' content={url} />,
-    <meta key='twitter:title' property='twitter:title' content={title} />,
+    <meta key='twitter:url' name='twitter:url' content={url} />,
+    <meta key='twitter:title' name='twitter:title' content={title} />,
     <meta
       key='twitter:description'
-      property='twitter:description'
+      name='twitter:description'
       content={description}
     />,
-    <meta key='twitter:image' property='twitter:image' content={imageUrl} />
+    <meta key='twitter:image' name='twitter:image' content={imageUrl} />,
+    <meta key='twitter:image:src' name='twitter:image:src' content={imageUrl} />
   )
 
   return <>{tags}</>
