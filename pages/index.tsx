@@ -23,14 +23,21 @@ const supportedKeys = [
   'com.facebook',
   'com.linkedin',
   'com.instagram',
+  'com.discord',
   'org.telegram',
   'email',
+  'url',
+  'description',
 ]
 
 function getNimiLinkFromENSText(text: string): NimiLink | undefined {
   if (supportedKeys.includes(text.toLowerCase())) {
     if (text.toLowerCase() === 'email') {
       return 'email'
+    }
+
+    if (text.toLowerCase() === 'url') {
+      return 'website'
     }
 
     return text.split('.')[1] as NimiLink
@@ -80,23 +87,22 @@ export async function getServerSideProps({
 
   const ensAddress =
     ensProfile?.owner?.address ?? '0x0000000000000000000000000000000000000000'
+  let description: undefined | string = undefined
+  const links: NimiLinkBaseDetails[] = []
 
-  const links: NimiLinkBaseDetails[] = ensProfile.texts.reduce(
-    (acc, { text, value }) => {
-      const nimiLinkType = getNimiLinkFromENSText(text)
+  ensProfile.texts.forEach(({ text, value }) => {
+    const nimiLinkType = getNimiLinkFromENSText(text)
 
-      if (nimiLinkType) {
-        const link = {
-          type: nimiLinkType,
-          url: value,
-        }
-        acc.push(link)
+    if (nimiLinkType) {
+      const link = {
+        type: nimiLinkType,
+        url: value,
       }
-
-      return acc
-    },
-    [] as NimiLinkBaseDetails[]
-  )
+      links.push(link)
+    } else if (text.toLowerCase() === 'description') {
+      description = value
+    }
+  })
 
   const nimi: Nimi = {
     ensName,
@@ -119,6 +125,10 @@ export async function getServerSideProps({
 
   if (ensMetadata) {
     nimi.displayImageUrl = ensMetadata.image
+  }
+
+  if (description) {
+    nimi.description = description
   }
 
   return {
