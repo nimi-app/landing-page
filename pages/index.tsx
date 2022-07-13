@@ -139,6 +139,7 @@ export async function getServerSideProps({
         address: ensAddress,
       },
     ],
+    isLanding: true,
   }
 
   if (ensMetadata) {
