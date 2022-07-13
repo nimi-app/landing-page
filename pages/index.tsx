@@ -16,6 +16,7 @@ import { getENSNameMetadata } from '../lib/ens/ensNameMetadata'
 import { getENSProfile } from '../lib/ens/ensProfile'
 
 import metaTagsImageUrl from '../assets/images/page-cover.png'
+import { getCacheManager } from '../lib/cache'
 
 const supportedKeys = [
   'com.twitter',
@@ -79,10 +80,32 @@ export async function getServerSideProps({
     'public, s-maxage=10, stale-while-revalidate=59'
   )
 
-  const ensName: string = (query.ens as string) || 'nimi.eth'
+  const ensName: string = ((query.ens as string) || 'nimi.eth').toLowerCase()
+  const ensNameCacheKey = ensName
+
+  const cacheManager = getCacheManager()
+
+  const cachedNimi = await cacheManager.get<Nimi>(ensNameCacheKey)
+  if (cachedNimi) {
+    console.log('Using cached Nimi')
+    return {
+      props: {
+        nimi: cachedNimi,
+      },
+    }
+  }
+
+  console.log(`fetching ENS profile for ${ensName}`)
   const ensProfile = await getENSProfile(ensName)
+
+  console.log(`fetching ENS name metadata for ${ensName}`)
   const ensMetadata = await getENSNameMetadata(ensName).catch((error) => {
-    console.error(error.message)
+    console.error('getENSNameMetadata: ', error.message)
+  })
+
+  console.log(`fetching ENS profile for ${ensName} complete`, {
+    ensProfile,
+    ensMetadata,
   })
 
   const ensAddress =
@@ -107,12 +130,7 @@ export async function getServerSideProps({
   const nimi: Nimi = {
     ensName,
     displayName: ensName,
-    addresses: [
-      {
-        address: ensAddress,
-        blockchain: 'ethereum',
-      },
-    ],
+    addresses: [],
     ensAddress,
     links,
     widgets: [
@@ -130,6 +148,10 @@ export async function getServerSideProps({
   if (description) {
     nimi.description = description
   }
+
+  // Cache for 1 hour
+  console.log('caching nimi', nimi)
+  cacheManager.set(ensNameCacheKey, nimi, 60 * 60)
 
   return {
     props: {

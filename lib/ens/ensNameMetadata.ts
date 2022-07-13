@@ -52,6 +52,9 @@ export function getENSNameMetadata(ensName: string): Promise<ENSMetadata> {
   return axios
     .get<ENSMetadata>(
       `https://metadata.ens.domains/mainnet/avatar/${ensName}/meta`,
+      {
+        timeout: 5000,
+      },
     )
     .then(({ data }) => {
       if ('image' in data && data.image) {

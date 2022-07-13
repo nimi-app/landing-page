@@ -5,7 +5,6 @@ export default function Document() {
   return (
     <Html>
       <Head>
-        <meta name='viewport' content='initial-scale=1.0, width=device-width' />
         <meta name='version' content={process.env.GIT_REVISION} />
         <link rel='preconnect' href='https://fonts.googleapis.com' />
         <link
