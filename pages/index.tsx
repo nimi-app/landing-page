@@ -106,7 +106,7 @@ export async function getServerSideProps({
 
   const nimi: Nimi = {
     ensName,
-    landingPage:true,
+    isLanding:true,
     displayName: ensName,
     addresses: [
       {
