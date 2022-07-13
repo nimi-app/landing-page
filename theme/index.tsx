@@ -166,7 +166,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 body {
-  background-image: url("${backgroundImageUrl.src}");
+background-color:#F5F7FF;
   background-position: center;
   background-size: cover;
 }
