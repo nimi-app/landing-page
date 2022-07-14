@@ -1,4 +1,5 @@
 import axios from 'axios'
+import memoize from 'memoizee'
 import { namehash } from '@ethersproject/hash'
 import {
   ENSPublicResolver__factory,
@@ -23,6 +24,8 @@ export interface ENSProfile {
 
 const ENSPublicResolver_ADDRESS = '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'
 
+const memoizedENSNamehash = memoize(namehash)
+
 export async function getENSProfile(ensName: string): Promise<ENSProfile> {
   const ensProfile: ENSProfile = {
     name: ensName,
@@ -32,7 +35,7 @@ export async function getENSProfile(ensName: string): Promise<ENSProfile> {
     texts: [],
   }
 
-  const ensNameHash = namehash(ensName)
+  const ensNameHash = memoizedENSNamehash(ensName)
 
   const { data } = await axios.post(
     'https://api.thegraph.com/subgraphs/name/ensdomains/ens',
@@ -62,6 +65,8 @@ export async function getENSProfile(ensName: string): Promise<ENSProfile> {
 
   // Fetch domain texts from the resolver
   const domainTexts: string[] = data.data?.domain?.resolver?.texts ?? []
+
+  console.log('domainTexts', domainTexts)
 
   if (domainTexts.length > 0) {
     try {
@@ -117,12 +122,14 @@ export async function getENSTextsFromPublicResolver(
         const textValue = ensPublicResolverContractInterface.decodeFunctionResult(
           'text',
           multicallCallData[index].returnData,
-        )[0]
+        )[0] as string
 
-        acc.push({
-          text,
-          value: textValue,
-        })
+        if (textValue.trim() !== '') {
+          acc.push({
+            text,
+            value: textValue,
+          })
+        }
       }
 
       return acc
