@@ -87,7 +87,7 @@ export async function getServerSideProps({
 
   const cachedNimi = await cacheManager.get<Nimi>(ensNameCacheKey)
   if (cachedNimi) {
-    console.log('Using cached Nimi')
+    console.log('Using cached Nimi for ', ensName)
     return {
       props: {
         nimi: cachedNimi,
@@ -150,8 +150,6 @@ export async function getServerSideProps({
     nimi.description = description
   }
 
-  // Cache for 1 hour
-  console.log('caching nimi', nimi)
   cacheManager.set(ensNameCacheKey, nimi, 60 * 60)
 
   return {
