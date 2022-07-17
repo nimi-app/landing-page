@@ -11,6 +11,7 @@ const nextConfig = {
   reactStrictMode: true,
   env: {
     PORT: process.env.PORT || 3000,
+    FATHOM_SITE_ID: process.env.FATHOM_SITE_ID,
   },
   experimental: {
     outputStandalone: true,
