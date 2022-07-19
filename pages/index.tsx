@@ -17,6 +17,7 @@ import { getENSProfile } from '../lib/ens/ensProfile'
 
 import metaTagsImageUrl from '../assets/images/page-cover.png'
 import { getCacheManager } from '../lib/cache'
+import dynamic from 'next/dynamic'
 
 const supportedKeys = [
   'com.twitter',
@@ -30,6 +31,16 @@ const supportedKeys = [
   'url',
   'description',
 ]
+
+// document.body is undefined in SSR
+const NimiCardApp = dynamic(
+  async () => {
+    const NimiCardModule = await import('nimi-card')
+
+    return NimiCardModule.CardApp
+  },
+  { ssr: false }
+)
 
 function getNimiLinkFromENSText(text: string): NimiLink | undefined {
   if (supportedKeys.includes(text.toLowerCase())) {
@@ -62,7 +73,7 @@ function Home({
         />
       </Head>
       <NimiCardContainer>
-        <NimiCard nimi={nimi} />
+        <NimiCardApp nimi={nimi} />
       </NimiCardContainer>
     </>
   )
