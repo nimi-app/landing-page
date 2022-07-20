@@ -18,7 +18,7 @@
     "memoizee": "^0.4.15",
     "multiformats": "^9.7.0",
     "next": "12.1.6",
-    "nimi-card": "^0.7.9-beta",
+    "nimi-card": "^0.7.11-beta",
     "node-cache": "^5.1.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
