@@ -6,8 +6,7 @@ import Head from 'next/head'
 import {
   Container as NimiCardContainer,
   Nimi,
-  NimiCard,
-  NimiLink,
+  NimiLinkType,
   NimiLinkBaseDetails,
   NimiWidgetType,
 } from 'nimi-card'
@@ -42,17 +41,17 @@ const NimiCardApp = dynamic(
   { ssr: false }
 )
 
-function getNimiLinkFromENSText(text: string): NimiLink | undefined {
+function getNimiLinkFromENSText(text: string): NimiLinkType | undefined {
   if (supportedKeys.includes(text.toLowerCase())) {
     if (text.toLowerCase() === 'email') {
-      return 'email'
+      return NimiLinkType.EMAIL;
     }
 
     if (text.toLowerCase() === 'url') {
-      return 'website'
+      return NimiLinkType.URL
     }
 
-    return text.split('.')[1] as NimiLink
+    return text.split('.')[1] as NimiLinkType;
   }
 }
 
@@ -121,6 +120,9 @@ export async function getServerSideProps({
 
   const ensAddress =
     ensProfile?.owner?.address ?? '0x0000000000000000000000000000000000000000'
+  const resolvedAddress =
+    ensProfile?.resolvedAddress?.address ??
+    "0x0000000000000000000000000000000000000000";
   let description: undefined | string = undefined
   const links: NimiLinkBaseDetails[] = []
 
@@ -130,7 +132,7 @@ export async function getServerSideProps({
     if (nimiLinkType) {
       const link = {
         type: nimiLinkType,
-        url: value,
+        content: value,
       }
       links.push(link)
     } else if (text.toLowerCase() === 'description') {
@@ -143,6 +145,7 @@ export async function getServerSideProps({
     displayName: ensName,
     addresses: [],
     ensAddress,
+    resolvedAddress,
     links,
     widgets: [
       {

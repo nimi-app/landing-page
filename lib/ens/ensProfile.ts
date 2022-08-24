@@ -19,6 +19,9 @@ export interface ENSProfile {
   owner: {
     address: string
   }
+  resolvedAddress: {
+    address: string
+  }
   texts: ENSProfileText[]
 }
 
@@ -32,6 +35,9 @@ export async function getENSProfile(ensName: string): Promise<ENSProfile> {
     owner: {
       address: AddressZero,
     },
+    resolvedAddress: {
+      address: AddressZero,
+    },
     texts: [],
   }
 
@@ -43,6 +49,9 @@ export async function getENSProfile(ensName: string): Promise<ENSProfile> {
       query: `{
         domain(id: "${ensNameHash}") {
           owner {
+            address: id
+          }
+          resolvedAddress {
             address: id
           }
           name
@@ -61,6 +70,10 @@ export async function getENSProfile(ensName: string): Promise<ENSProfile> {
 
   if (data.data.domain.owner.address !== AddressZero) {
     ensProfile.owner.address = data.data.domain.owner.address
+  }
+
+  if (data.data.domain.resolvedAddress?.address !== AddressZero) {
+    ensProfile.resolvedAddress.address = data.data.domain.owner.address
   }
 
   // Fetch domain texts from the resolver
