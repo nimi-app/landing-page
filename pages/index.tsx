@@ -7,10 +7,10 @@ import {
   Container as NimiCardContainer,
   Nimi,
   NimiCard,
-  NimiLink,
+  NimiLinkType,
   NimiLinkBaseDetails,
   NimiWidgetType,
-} from 'nimi-card'
+} from '@nimi.io/card'
 import { MetaTags } from '../components/MetaTags/MetaTags'
 import { getENSNameMetadata } from '../lib/ens/ensNameMetadata'
 import { getENSProfile } from '../lib/ens/ensProfile'
@@ -35,24 +35,26 @@ const supportedKeys = [
 // document.body is undefined in SSR
 const NimiCardApp = dynamic(
   async () => {
-    const NimiCardModule = await import('nimi-card')
+    const NimiCardModule = await import('@nimi.io/card')
 
     return NimiCardModule.CardApp
   },
   { ssr: false }
 )
 
-function getNimiLinkFromENSText(text: string): NimiLink | undefined {
+function getNimiLinkFromENSText(text: string): NimiLinkType | undefined {
   if (supportedKeys.includes(text.toLowerCase())) {
     if (text.toLowerCase() === 'email') {
-      return 'email'
+      return NimiLinkType.EMAIL
     }
 
     if (text.toLowerCase() === 'url') {
-      return 'website'
+      return NimiLinkType.URL
     }
 
-    return text.split('.')[1] as NimiLink
+    console.log('text', text)
+
+    return text.split('.')[1]?.toLocaleUpperCase() as NimiLinkType
   }
 }
 
@@ -128,11 +130,10 @@ export async function getServerSideProps({
     const nimiLinkType = getNimiLinkFromENSText(text)
 
     if (nimiLinkType) {
-      const link = {
+      links.push({
         type: nimiLinkType,
-        url: value,
-      }
-      links.push(link)
+        content: value,
+      })
     } else if (text.toLowerCase() === 'description') {
       description = value
     }
