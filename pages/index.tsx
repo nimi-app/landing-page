@@ -130,6 +130,11 @@ export async function getServerSideProps({
     const nimiLinkType = getNimiLinkFromENSText(text)
 
     if (nimiLinkType) {
+      // Add `https://` to URL if it doesn't have it
+      if (nimiLinkType === NimiLinkType.URL && !value.startsWith('http')) {
+        value = `https://${value}`
+      }
+
       links.push({
         type: nimiLinkType,
         content: value,
