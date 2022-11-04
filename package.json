@@ -13,7 +13,7 @@
   "dependencies": {
     "@ensdomains/ensjs": "^3.0.0-alpha.1",
     "@ensdomains/eth-ens-namehash": "^2.0.15",
-    "@nimi.io/card": "^0.8.6-rc.3",
+    "@nimi.io/card": "^0.8.7-beta.1",
     "axios": "^0.27.2",
     "ethers": "^5.7.2",
     "memoizee": "^0.4.15",

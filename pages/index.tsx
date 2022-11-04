@@ -10,6 +10,7 @@ import {
   NimiLinkType,
   NimiLinkBaseDetails,
   NimiWidgetType,
+  NimiImageType,
 } from '@nimi.io/card'
 import { MetaTags } from '../components/MetaTags/MetaTags'
 import { getENSNameMetadata } from '../lib/ens/ensNameMetadata'
@@ -153,14 +154,19 @@ export async function getServerSideProps({
     widgets: [
       {
         type: NimiWidgetType.POAP,
-        address: ensAddress,
       },
     ],
     isLanding: true,
   }
 
   if (ensMetadata) {
-    nimi.displayImageUrl = ensMetadata.image
+    nimi.image = {
+      type: NimiImageType.ERC721,
+      contract: ensMetadata.host_meta.contract_address,
+      tokenId: ensMetadata.host_meta.token_id as any,
+      tokenUri: ensMetadata.uri,
+      url: ensMetadata.image,
+    }
   }
 
   if (description) {
