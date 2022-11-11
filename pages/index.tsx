@@ -160,12 +160,20 @@ export async function getServerSideProps({
   }
 
   if (ensMetadata) {
-    nimi.image = {
-      type: NimiImageType.ERC721,
-      contract: ensMetadata.host_meta.contract_address,
-      tokenId: ensMetadata.host_meta.token_id as any,
-      tokenUri: ensMetadata.uri,
-      url: ensMetadata.image,
+    //
+    if (ensMetadata.host_meta && ensMetadata.host_meta.contract_address) {
+      nimi.image = {
+        type: NimiImageType.ERC721,
+        contract: ensMetadata.host_meta.contract_address,
+        tokenId: ensMetadata.host_meta.token_id as any,
+        tokenUri: ensMetadata.uri,
+        url: ensMetadata.image,
+      }
+    } else {
+      nimi.image = {
+        type: NimiImageType.URL,
+        url: ensMetadata.image,
+      }
     }
   }
 
