@@ -5,7 +5,8 @@ export default function Document() {
   return (
     <Html>
       <Head>
-        <meta name='version' content={process.env.GIT_REVISION} />
+        <meta name='revision' content={process.env.GIT_REVISION} />
+        <meta name='commit' content={process.env.GIT_COMMIT} />
         <link rel='preconnect' href='https://fonts.googleapis.com' />
         <link
           rel='preconnect'
