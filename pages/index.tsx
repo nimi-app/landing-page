@@ -82,19 +82,49 @@ function Home({
   )
 }
 
+/**
+ * Custom domains to ENS names map
+ */
+const customDotLinkDomainToENSName: Record<string, string> = {
+  'nimi.link': 'nimi.eth',
+  'dvve.link': 'dvve.eth',
+  'james.link': 'james.eth',
+  'nick.link': 'nick.eth',
+  'adamazad.link': 'adamazad.eth',
+}
+
 export async function getServerSideProps({
+  req,
   query,
   res,
 }: GetServerSidePropsContext<{
   ens: string
 }>): Promise<{ props: { nimi: Nimi } }> {
+  console.log(req.headers)
+
+  // Get ENS name from query
+  let ensName: string = ((query.ens as string) || 'nimi.eth').toLowerCase()
+
+  // Catch .link domains and override ENS name
+  if (req.headers.host?.endsWith('.link')) {
+    const customDotLinkDomain = req.headers.host.split(':')[0]
+
+    console.log({ customDotLinkDomain })
+
+    const customDotLinkDomainENSName =
+      customDotLinkDomainToENSName[customDotLinkDomain]
+
+    if (customDotLinkDomainENSName) {
+      ensName = customDotLinkDomainENSName
+    }
+  }
+
   // Cache pages for 1 hour
   res.setHeader(
     'Cache-Control',
     'public, s-maxage=10, stale-while-revalidate=59'
   )
 
-  const ensName: string = ((query.ens as string) || 'nimi.eth').toLowerCase()
   const ensNameCacheKey = ensName
 
   const cacheManager = getCacheManager()
