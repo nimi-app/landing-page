@@ -1,96 +1,34 @@
-import type {
-  GetServerSidePropsContext,
-  InferGetServerSidePropsType,
-} from 'next'
-import Head from 'next/head'
+import { AddressZero } from '@ethersproject/constants'
 import {
-  Container as NimiCardContainer,
   Nimi,
-  NimiCard,
   NimiLinkType,
   NimiLinkBaseDetails,
   NimiWidgetType,
   NimiImageType,
-} from '@nimi.io/card'
-import { MetaTags } from '../components/MetaTags/MetaTags'
-import { getENSNameMetadata } from '../lib/ens/ensNameMetadata'
-import { getENSProfile } from '../lib/ens/ensProfile'
+  NimiThemeType,
+} from '@nimi.io/card/types'
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from 'next'
 
-import metaTagsImageUrl from '../assets/images/page-cover.png'
-import { getCacheManager } from '../lib/cache'
-import dynamic from 'next/dynamic'
+import { getENSNameMetadata } from 'lib/ens/ensNameMetadata'
+import { getENSProfile } from 'lib/ens/ensProfile'
+import { getCacheManager } from 'lib/cache'
+import {
+  getCustomDomain,
+  getNimiByDomain,
+  getNimiLinkFromENSText,
+} from 'lib/nimi/func'
+import { NimiPageRenderer } from 'lib/nimi/renderer'
+import createDebug from 'debug'
 
-const supportedKeys = [
-  'com.twitter',
-  'com.github',
-  'com.facebook',
-  'com.linkedin',
-  'com.instagram',
-  'com.discord',
-  'org.telegram',
-  'email',
-  'url',
-  'description',
-]
+const debug = createDebug('page:index')
 
-// document.body is undefined in SSR
-const NimiCardApp = dynamic(
-  async () => {
-    const NimiCardModule = await import('@nimi.io/card')
-
-    return NimiCardModule.CardApp
-  },
-  { ssr: false }
-)
-
-function getNimiLinkFromENSText(text: string): NimiLinkType | undefined {
-  if (supportedKeys.includes(text.toLowerCase())) {
-    if (text.toLowerCase() === 'email') {
-      return NimiLinkType.EMAIL
-    }
-
-    if (text.toLowerCase() === 'url') {
-      return NimiLinkType.URL
-    }
-
-    console.log('text', text)
-
-    return text.split('.')[1]?.toLocaleUpperCase() as NimiLinkType
-  }
-}
-
-function Home({
+export default function IndexPage({
   nimi,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const title = `${nimi.ensName} - Nimi`
-
-  return (
-    <>
-      <Head>
-        <title>{title}</title>
-        <MetaTags
-          title={title}
-          description='Created using Nimi'
-          imageUrl={metaTagsImageUrl.src}
-          url={`https://${nimi.ensName}.limo/`}
-        />
-      </Head>
-      <NimiCardContainer>
-        <NimiCardApp nimi={nimi} />
-      </NimiCardContainer>
-    </>
-  )
-}
-
-/**
- * Custom domains to ENS names map
- */
-const customDotLinkDomainToENSName: Record<string, string> = {
-  'nimi.link': 'nimi.eth',
-  'dvve.link': 'dvve.eth',
-  'james.link': 'james.eth',
-  'nick.link': 'nick.eth',
-  'adamazad.link': 'adamazad.eth',
+  return <NimiPageRenderer nimi={nimi} />
 }
 
 export async function getServerSideProps({
@@ -100,38 +38,35 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext<{
   ens: string
 }>): Promise<{ props: { nimi: Nimi } }> {
-  console.log(req.headers)
-
-  // Get ENS name from query
-  let ensName: string = ((query.ens as string) || 'nimi.eth').toLowerCase()
-
-  // Catch .link domains and override ENS name
-  if (req.headers.host?.endsWith('.link')) {
-    const customDotLinkDomain = req.headers.host.split(':')[0]
-
-    console.log({ customDotLinkDomain })
-
-    const customDotLinkDomainENSName =
-      customDotLinkDomainToENSName[customDotLinkDomain]
-
-    if (customDotLinkDomainENSName) {
-      ensName = customDotLinkDomainENSName
-    }
-  }
-
-  // Cache pages for 1 hour
+  // Cache pages for  hour
   res.setHeader(
     'Cache-Control',
     'public, s-maxage=10, stale-while-revalidate=59'
   )
 
-  const ensNameCacheKey = ensName
+  // Get ENS name from query
+  let ensName: string = ((query.ens as string) || 'nimi.eth').toLowerCase()
 
+  const customENSDomain = getCustomDomain(req.headers.host)
+  // Attempt to find the custom ENS domain
+  if (customENSDomain !== null) {
+    ensName = customENSDomain
+    const domainNimi = await getNimiByDomain(ensName)
+    if (domainNimi) {
+      return {
+        props: {
+          nimi: domainNimi,
+        },
+      }
+    }
+  }
+
+  const nimiCacheKey = ensName
   const cacheManager = getCacheManager()
 
-  const cachedNimi = await cacheManager.get<Nimi>(ensNameCacheKey)
+  const cachedNimi = await cacheManager.get<Nimi>(nimiCacheKey)
   if (cachedNimi) {
-    console.log('Using cached Nimi for ', ensName)
+    debug('Using cached Nimi for ', ensName)
     return {
       props: {
         nimi: cachedNimi,
@@ -139,21 +74,20 @@ export async function getServerSideProps({
     }
   }
 
-  console.log(`fetching ENS profile for ${ensName}`)
+  debug(`fetching ENS profile for ${ensName}`)
   const ensProfile = await getENSProfile(ensName)
 
-  console.log(`fetching ENS name metadata for ${ensName}`)
+  debug(`fetching ENS name metadata for ${ensName}`)
   const ensMetadata = await getENSNameMetadata(ensName).catch((error) => {
     console.error('getENSNameMetadata: ', error.message)
   })
 
-  console.log(`fetching ENS profile for ${ensName} complete`, {
+  debug(`fetching ENS profile for ${ensName} complete`, {
     ensProfile,
     ensMetadata,
   })
 
-  const ensAddress =
-    ensProfile?.owner?.address ?? '0x0000000000000000000000000000000000000000'
+  const ensAddress = ensProfile?.owner?.address ?? AddressZero
   let description: undefined | string = undefined
   const links: NimiLinkBaseDetails[] = []
 
@@ -184,8 +118,12 @@ export async function getServerSideProps({
     widgets: [
       {
         type: NimiWidgetType.POAP,
+        context: {},
       },
     ],
+    theme: {
+      type: NimiThemeType.NIMI,
+    },
     isLanding: true,
   }
 
@@ -211,7 +149,7 @@ export async function getServerSideProps({
     nimi.description = description
   }
 
-  cacheManager.set(ensNameCacheKey, nimi, 60 * 60)
+  cacheManager.set(nimiCacheKey, nimi, 60 * 60)
 
   return {
     props: {
@@ -219,5 +157,3 @@ export async function getServerSideProps({
     },
   }
 }
-
-export default Home
