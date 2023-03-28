@@ -1,5 +1,23 @@
 # Install dependencies only when needed
 FROM node:16 AS deps
+# Arguments
+ARG SSH_PRIVATE_KEY
+ARG SSH_PUBLIC_KEY
+# Install git and ssh
+RUN apt-get update && \
+  apt-get install -y \
+  git \
+  openssh-server
+# Authorize SSH Host
+RUN mkdir -p /root/.ssh && \
+  chmod 0700 /root/.ssh && \
+  ssh-keyscan github.com > /root/.ssh/known_hosts
+# Add the keys and set permissions
+RUN echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa && \
+  echo "$SSH_PUBLIC_KEY" > /root/.ssh/id_rsa.pub && \
+  chmod 600 /root/.ssh/id_rsa && \
+  chmod 600 /root/.ssh/id_rsa.pub
+# Install dependencies
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
