@@ -13,8 +13,9 @@
   "dependencies": {
     "@ensdomains/ensjs": "^3.0.0-alpha.1",
     "@ensdomains/eth-ens-namehash": "^2.0.15",
-    "@nimi.io/card": "^0.8.7-beta.1",
+    "@nimi.io/card": "nimi-app/card#v0.13.0",
     "axios": "^0.27.2",
+    "debug": "^4.3.4",
     "ethers": "^5.7.2",
     "memoizee": "^0.4.15",
     "multiformats": "^9.7.0",
